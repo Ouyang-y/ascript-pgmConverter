@@ -1,0 +1,51 @@
+{
+	"_schemaVersion" : "1.0.0",
+	"ascript2pgm" : 
+	{
+		"inputs" : 
+		[
+			{
+				"kind" : "required",
+				"name" : "ascriptPath",
+				"purpose" : "(必要).ascript路径",
+				"type" : 
+				[
+					"numeric"
+				]
+			},
+			{
+				"kind" : "required",
+				"name" : "PsoPin",
+				"purpose" : "(可选)默认'2'，实际值PSOOUTPUT X CONTROL 0 2",
+				"type" : 
+				[
+					"orderd"
+				]
+			}
+		]
+	},
+	"pgm2ascript" : 
+	{
+		"inputs" : 
+		[
+			{
+				"kind" : "required",
+				"name" : "pgmPath",
+				"purpose" : "(必要).pgm路径",
+				"type" : 
+				[
+					"numeric"
+				]
+			},
+			{
+				"kind" : "required",
+				"name" : "PsoPin",
+				"purpose" : "(可选)默认'XR3PsoOutput2'，实际值PsoOutputConfigureOutput(X,PsoOutputPin.XR3PsoOutput2)",
+				"type" : 
+				[
+					"orderd"
+				]
+			}
+		]
+	}
+}

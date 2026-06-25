@@ -1,9 +1,11 @@
-
 clear;fclose("all");
+
+PsoPin = 'XR3PsoOutput2';
 
 [fileName,filePath]=uigetfile('*.pgm','Chooes .pgm File','');
 pgmPath = fullfile(filePath,fileName);
-[~,fileName0,~]=fileparts(fileName);
+[~,fileName0,ext]=fileparts(fileName);
+if ~strcmp(ext,'.pgm'),error('请选择.pgm文件\n当前文件名：%s\n',[fileName0,ext]);end
 ascriptPath = fullfile(filePath,[fileName0,'.ascript']);
 
 fin=fopen(pgmPath,'r');
@@ -67,7 +69,11 @@ while ~feof(fin)
                     case 'MOVEDONE',tempLine = dealMultiAxis(currentLine,'WaitForMotionDone');
                     otherwise,error("Line %d:%s\ns = %s\nWAIT:非法操作符<%s>\n",rowNow,currentLine,s{1},WAIT{1}{3});
                 end
-            case {'PROGRAM','PSOOUTPUT'},continue;
+            case 'PSOOUTPUT'
+                currentLinetemp = currentLine(~isspace(currentLine));
+                temps = currentLinetemp(10);
+                tempLine = ['PsoOutputConfigureOutput(',temps,',PsoOutputPin.',PsoPin,')'];
+            case 'PROGRAM',continue;
             otherwise,error("Line %d:%s\ns = %s\n",rowNow,currentLine,s{1})
         end
     end

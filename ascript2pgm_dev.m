@@ -1,8 +1,11 @@
 clear;fclose("all");
 
+PsoPin = '2';
+
 [fileName,filePath]=uigetfile('*.ascript','Chooes .ascript File','');
 ascriptPath = fullfile(filePath,fileName);
-[~,fileName0,~]=fileparts(fileName);
+[~,fileName0,ext]=fileparts(fileName);
+if ~strcmp(ext,'.ascript'),error('请选择.ascript文件\n当前文件名：%s\n',[fileName0,ext]);end
 pgmPath = fullfile(filePath,[fileName0,'.pgm']);
 
 rowNow=0;
@@ -43,12 +46,16 @@ while ~feof(fin)
         case 'G109',tempLine = replace(currentLine,s{1},'VELOCITY OFF');
         case {'Enable','Dwell'},tempLine = regexprep(regexprep(currentLine, '(\w+)\(\[?([^\]\)]+)\]?\)', '${upper($1)} ${regexprep($2,''^\s+|\s+$|,\s*'','' '')}'),'\s*',' ');
         case 'SetupTaskTimeUnits',tempLine = regexprep(currentLine, '.*TimeUnits\.(.*)\)', '${upper($1)}');
-        case 'PsoReset',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');fwrite(fout,['PSOCONTROL ',axis{1},' RESET'],'char');fwrite(fout, [13, 10], 'uint8');tempLine = ['PSOOUTPUT ',axis{1},' CONTROL 1 0'];
+        case 'PsoReset',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' RESET'];
         case 'SetupTaskTargetMode',tempLine = regexprep(currentLine, '.*TargetMode\.(.*)\)', '${upper($1)}');
         case 'PsoOutputOff',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' OFF'];
         case 'PsoOutputOn',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' ON'];
         case 'WaitForMotionDone',axis = regexp(currentLine,'\w+\(\[?([^\]\)]+)\]?\)','tokens','once');tempLine = ['WAIT MOVEDONE ',regexprep(axis{1},'\s*,\s*',' ')];
         case {'G359','G92'},tempLine = currentLine;
+        case 'PsoOutputConfigureOutput'
+            currentLinetemp = currentLine(~isspace(currentLine));
+            temps = currentLinetemp(26);
+            tempLine = ['PSOOUTPUT ',temps,' CONTROL 0 ',PsoPin];
         case {'program','end'},continue;
         otherwise,error("Line %d:%s\ns = %s\n",rowNow,currentLine,s{1})
     end
@@ -57,4 +64,3 @@ while ~feof(fin)
     fwrite(fout, [13, 10], 'uint8');  % 直接写入 ASCII 码
 end
 fclose(fout);fclose(fin);
-

@@ -1,6 +1,30 @@
-function pgm2ascript(pgmPath)
+function ascriptPath = pgm2ascript(pgmPath,PsoPin)
+% ascriptPath = pgm2ascript(pgmPath,PsoPin) convert .pgm to .ascript
+%   ascriptPath = pgm2ascript(pgmPath,PsoPin)
+%
+% Syntax: (这里添加函数的调用格式, `[]`的内容表示可选参数)
+%	[ascriptPath] = pgm2ascript(pgmPath[, 'PsoPin', 'XR3PsoOutput2']);
+%
+% Params:
+%   - pgmPath       [required] (必要).pgm路径
+%   - PsoPin        [orderd] (可选)默认'XR3PsoOutput2'，实际值PsoOutputConfigureOutput(X,PsoOutputPin.XR3PsoOutput2)
+%
+% Return:
+%   - ascriptPath .ascript路径
+%
+% Matlab Version: R2025b
+%
+% Author: oyy
+%
+% See also:
+%   ascript2pgm fabricate_debugger
+arguments
+    pgmPath (1,:) char
+    PsoPin (1,:) char = 'XR3PsoOutput2'
+end
 
-[filePath,fileName0,~]=fileparts(pgmPath);
+[filePath,fileName0,ext]=fileparts(pgmPath);
+if ~strcmp(ext,'.pgm'),error('请选择.pgm文件\n当前文件名：%s\n',[fileName0,ext]);end
 ascriptPath = fullfile(filePath,[fileName0,'.ascript']);
 
 rowNow=0;
@@ -64,7 +88,11 @@ while ~feof(fin)
                     case 'MOVEDONE',tempLine = dealMultiAxis(currentLine,'WaitForMotionDone');
                     otherwise,error("Line %d:%s\ns = %s\nWAIT:非法操作符<%s>\n",rowNow,currentLine,s{1},WAIT{1}{3});
                 end
-            case {'PROGRAM','PSOOUTPUT'},continue;
+            case 'PSOOUTPUT'
+                currentLinetemp = currentLine(~isspace(currentLine));
+                temps = currentLinetemp(10);
+                tempLine = ['PsoOutputConfigureOutput(',temps,',PsoOutputPin.',PsoPin,')'];
+            case 'PROGRAM',continue;
             otherwise,error("Line %d:%s\ns = %s\n",rowNow,currentLine,s{1})
         end
     end

@@ -1,6 +1,14 @@
 # ascript-pgmConverter
 .ascript与.pgm转换
 
+## 更新日志
+V1.0.2  
++ 增加`functionSignatures.json`提示
++ 增加支持绑定输出引脚
+  |pgm|ascript|
+  |---|---|
+  |PSOOUTPUT X CONTROL 0 2|PsoOutputConfigureOutput(X,PsoOutputPin.XR3PsoOutput2)|
+
 V0.1  
 |pgm|convert|ascript|convert
 |---|---|---|---|

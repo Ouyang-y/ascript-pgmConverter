@@ -1,6 +1,31 @@
-function ascript2pgm(ascriptPath)
+function pgmPath = ascript2pgm(ascriptPath,PsoPin)
+% pgmPath = ascript2pgm(ascriptPath,PsoPin) convert .ascript to .pgm
+%   pgmPath = ascript2pgm(ascriptPath)
+%   pgmPath = ascript2pgm(ascriptPath,PsoPin)
+%
+% Syntax: (这里添加函数的调用格式, `[]`的内容表示可选参数)
+%	[ascriptPath] = pgm2ascript(pgmPath[, 'PsoPin', '2']);
+%
+% Params:
+%   - ascriptPath   [required] (必要).ascript路径
+%   - PsoPin        [orderd] (可选)默认'2'，实际值PSOOUTPUT X CONTROL 0 2
+%
+% Return:
+%   - pgmPath .pgm路径
+%
+% Matlab Version: R2025b
+%
+% Author: oyy
+%
+% See also:
+%   pgm2ascript fabricate_debugger
+arguments
+    ascriptPath (1,:) char
+    PsoPin (1,:) char = '2'
+end
 
-[filePath,fileName0,~]=fileparts(ascriptPath);
+[filePath,fileName0,ext]=fileparts(ascriptPath);
+if ~strcmp(ext,'.ascript'),error('请选择.ascript文件\n当前文件名：%s\n',[fileName0,ext]);end
 pgmPath = fullfile(filePath,[fileName0,'.pgm']);
 
 rowNow=0;
@@ -41,12 +66,16 @@ while ~feof(fin)
         case 'G109',tempLine = replace(currentLine,s{1},'VELOCITY OFF');
         case {'Enable','Dwell'},tempLine = regexprep(regexprep(currentLine, '(\w+)\(\[?([^\]\)]+)\]?\)', '${upper($1)} ${regexprep($2,''^\s+|\s+$|,\s*'','' '')}'),'\s*',' ');
         case 'SetupTaskTimeUnits',tempLine = regexprep(currentLine, '.*TimeUnits\.(.*)\)', '${upper($1)}');
-        case 'PsoReset',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');fwrite(fout,['PSOCONTROL ',axis{1},' RESET'],'char');fwrite(fout, [13, 10], 'uint8');tempLine = ['PSOOUTPUT ',axis{1},' CONTROL 1 0'];
+        case 'PsoReset',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' RESET'];
         case 'SetupTaskTargetMode',tempLine = regexprep(currentLine, '.*TargetMode\.(.*)\)', '${upper($1)}');
         case 'PsoOutputOff',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' OFF'];
         case 'PsoOutputOn',axis = regexp(currentLine,'\(.*(\w).*\)','tokens','once');tempLine = ['PSOCONTROL ',axis{1},' ON'];
         case 'WaitForMotionDone',axis = regexp(currentLine,'\w+\(\[?([^\]\)]+)\]?\)','tokens','once');tempLine = ['WAIT MOVEDONE ',regexprep(axis{1},'\s*,\s*',' ')];
         case {'G359','G92'},tempLine = currentLine;
+        case 'PsoOutputConfigureOutput'
+            currentLinetemp = currentLine(~isspace(currentLine));
+            temps = currentLinetemp(26);
+            tempLine = ['PSOOUTPUT ',temps,' CONTROL 0 ',PsoPin];
         case {'program','end'},continue;
         otherwise,error("Line %d:%s\ns = %s\n",rowNow,currentLine,s{1})
     end
