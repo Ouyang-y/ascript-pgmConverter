@@ -35,7 +35,7 @@ while ~feof(fin)
         case 'G0',tempLine = replace(currentLine,s{1},'RAPID');
         case 'G2',tempLine = replace(currentLine,s{1},'CW');
         case 'G3',tempLine = replace(currentLine,s{1},'CCW');
-        case 'G4',tempLine = replace(currentLine,s{1},'DWELL');
+        case 'G4',tempLine = replace(currentLine,s{1},'DWELL');tempLine(tempLine=='P')='';
         case 'G70',tempLine = 'ENGLISH';
         case 'G71',tempLine = 'METRIC';
         case 'G75',tempLine = 'MINUTES';

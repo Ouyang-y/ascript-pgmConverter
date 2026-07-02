@@ -2,6 +2,9 @@
 .ascript与.pgm转换
 
 ## 更新日志
+V1.0.3  
++ 修复DWELL ↔ G4，“[P](https://help.aerotech.com/automation1/Content/Guide-AeroScript-Programming-Language-Reference/9_G-Code-Commands.htm#MiscellaneousGCodes)”
+
 V1.0.2  
 + 增加`functionSignatures.json`提示
 + 增加支持绑定输出引脚

@@ -40,7 +40,7 @@ while ~feof(fin)
             case 'CW',tempLine = replace(currentLine,s{1},'G2');
             case 'CCW',tempLine = replace(currentLine,s{1},'G3');
             % case 'DWELL',tempLine = [replace(replace(currentLine,' ',''),s{1},'Dwell('),')'];
-            case 'DWELL',tempLine = replace(currentLine,s{1},'G4');
+            case 'DWELL',tempLine = replace(currentLine,s{1},'G4 P');
             case 'ENGLISH',tempLine = 'G70';
             case 'METRIC',tempLine = 'G71';
             case 'MINUTES',tempLine = 'G75';
